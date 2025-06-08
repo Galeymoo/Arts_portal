@@ -7,8 +7,8 @@ const Comment = require('./comment');
 const Like = require('./like');
 
 // Define associations
-Artwork.belongsToMany(User, { through: Like, foreignKey: 'artworkId' });
-User.belongsToMany(Artwork, { through: Like, foreignKey: 'userId' });
+Artwork.belongsToMany(User, { through: Like, foreignKey: 'artworkId', as: 'usersWhoLiked' });
+User.belongsToMany(Artwork, { through: Like, foreignKey: 'userId', as: 'userLikedArtworks' });
 
 
 const db = { sequelize, User, Artwork, Comment, Like };
