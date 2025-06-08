@@ -2,37 +2,27 @@ const { Artwork, User, Comment, Like } = require('../models');
 const { Op } = require('sequelize');
 const path = require('path');
 
-// Helper to get likes count and if current user liked the artwork
+// Helper to get likes data
 async function getLikesData(artworkId, userId) {
   const likesCount = await Like.count({ where: { artwork_id: artworkId } });
   const liked = await Like.findOne({ where: { artwork_id: artworkId, user_id: userId } });
   return { likes: likesCount, liked: !!liked };
 }
+
+// GET feed of all artworks
 exports.feed = async (req, res) => {
   try {
     const userId = req.session.user.id;
 
     const artworks = await Artwork.findAll({
-      include: [{ 
-        model: User, 
-        as: 'author', // <-- match the alias here
-        attributes: ['full_name', 'email'] 
-      }],
+      include: [{ model: User, as: 'author', attributes: ['full_name', 'email'] }],
       order: [['created_at', 'DESC']]
     });
-
-    res.render('feed', { artworks });
-  } catch (error) {
-    console.error('Error fetching artworks:', error);
-    res.status(500).send('Internal Server Error');
-  }
-};
-
 
     for (const artwork of artworks) {
       const comments = await Comment.findAll({
         where: { artwork_id: artwork.id },
-        include: [{ model: User, attributes: ['full_name'] }],
+        include: [{ model: User, as: 'author', attributes: ['full_name'] }],
         order: [['created_at', 'ASC']]
       });
 
@@ -49,20 +39,21 @@ exports.feed = async (req, res) => {
   }
 };
 
+// GET artworks uploaded by current user
 exports.myArtworks = async (req, res) => {
   try {
     const userId = req.session.user.id;
 
     const artworks = await Artwork.findAll({
       where: { user_id: userId },
-      include: [{ model: User, attributes: ['full_name', 'email'] }],
+      include: [{ model: User, as: 'author', attributes: ['full_name', 'email'] }],
       order: [['created_at', 'DESC']]
     });
 
     for (const artwork of artworks) {
       const comments = await Comment.findAll({
         where: { artwork_id: artwork.id },
-        include: [{ model: User, attributes: ['full_name'] }],
+        include: [{ model: User, as: 'author', attributes: ['full_name'] }],
         order: [['created_at', 'ASC']]
       });
 
@@ -79,6 +70,7 @@ exports.myArtworks = async (req, res) => {
   }
 };
 
+// GET view for editing an artwork
 exports.editMyArtworksView = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -86,14 +78,14 @@ exports.editMyArtworksView = async (req, res) => {
 
     const artworks = await Artwork.findAll({
       where: { user_id: userId },
-      include: [{ model: User, attributes: ['full_name', 'email'] }],
+      include: [{ model: User, as: 'author', attributes: ['full_name', 'email'] }],
       order: [['created_at', 'DESC']]
     });
 
     for (const artwork of artworks) {
       const comments = await Comment.findAll({
         where: { artwork_id: artwork.id },
-        include: [{ model: User, attributes: ['full_name'] }],
+        include: [{ model: User, as: 'author', attributes: ['full_name'] }],
         order: [['created_at', 'ASC']]
       });
 
@@ -110,6 +102,7 @@ exports.editMyArtworksView = async (req, res) => {
   }
 };
 
+// POST update artwork
 exports.updateArtwork = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -130,6 +123,7 @@ exports.updateArtwork = async (req, res) => {
   }
 };
 
+// POST upload artwork
 exports.uploadArtwork = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -154,20 +148,21 @@ exports.uploadArtwork = async (req, res) => {
   }
 };
 
+// GET view single artwork
 exports.viewArtwork = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const artworkId = req.params.id;
 
     const artwork = await Artwork.findByPk(artworkId, {
-      include: [{ model: User, attributes: ['full_name'] }]
+      include: [{ model: User, as: 'author', attributes: ['full_name'] }]
     });
 
     if (!artwork) return res.status(404).send('Artwork not found');
 
     const comments = await Comment.findAll({
       where: { artwork_id: artworkId },
-      include: [{ model: User, attributes: ['full_name'] }],
+      include: [{ model: User, as: 'author', attributes: ['full_name'] }],
       order: [['created_at', 'ASC']]
     });
 
@@ -184,6 +179,7 @@ exports.viewArtwork = async (req, res) => {
   }
 };
 
+// POST like/unlike artwork
 exports.likeArtwork = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -206,6 +202,7 @@ exports.likeArtwork = async (req, res) => {
   }
 };
 
+// POST comment on artwork
 exports.commentArtwork = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -229,6 +226,7 @@ exports.commentArtwork = async (req, res) => {
   }
 };
 
+// DELETE artwork
 exports.deleteArtwork = async (req, res) => {
   try {
     const userId = req.session.user.id;
