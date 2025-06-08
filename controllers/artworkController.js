@@ -8,15 +8,26 @@ async function getLikesData(artworkId, userId) {
   const liked = await Like.findOne({ where: { artwork_id: artworkId, user_id: userId } });
   return { likes: likesCount, liked: !!liked };
 }
-
 exports.feed = async (req, res) => {
   try {
     const userId = req.session.user.id;
 
     const artworks = await Artwork.findAll({
-      include: [{ model: User, attributes: ['full_name', 'email'] }],
+      include: [{ 
+        model: User, 
+        as: 'author', // <-- match the alias here
+        attributes: ['full_name', 'email'] 
+      }],
       order: [['created_at', 'DESC']]
     });
+
+    res.render('feed', { artworks });
+  } catch (error) {
+    console.error('Error fetching artworks:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
 
     for (const artwork of artworks) {
       const comments = await Comment.findAll({
