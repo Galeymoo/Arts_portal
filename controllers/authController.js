@@ -76,10 +76,10 @@ exports.postSignup = async (req, res) => {
       from: `"Sherubtse artsPortal" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Verify your email',
-      html: `<h3>Hello ${full_name},</h3><p>Please verify your email by clicking below:</p><a href="${link}">Verify Email</a>`,
+      html: `<h3>Hello ${name},</h3><p>Please verify your email by clicking below:</p><a href="${link}">Verify Email</a>`,
     });
 
-    res.render('signup-success', { fullName: full_name });
+    res.render('signup-success', { fullName: name });
   } catch (error) {
     console.error('[POST /signup] Error:', error);
     res.render('signup', { message: 'Error during signup.' });
