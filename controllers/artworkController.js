@@ -13,16 +13,17 @@ async function getLikesData(artworkId, userId) {
 exports.feed = async (req, res) => {
   try {
     const userId = req.session.user.id;
-
     const artworks = await Artwork.findAll({
-      include: [{ model: User, as: 'author', attributes: ['full_name', 'email'] }],
+      include: [{ model: User, as: 'author', attributes: ['name', 'email'] }],
       order: [['created_at', 'DESC']]
+    });
+
     });
 
     for (const artwork of artworks) {
       const comments = await Comment.findAll({
         where: { artwork_id: artwork.id },
-        include: [{ model: User, as: 'author', attributes: ['full_name'] }],
+        include: [{ model: User, as: 'author', attributes: ['name'] }],
         order: [['created_at', 'ASC']]
       });
 
@@ -46,14 +47,14 @@ exports.myArtworks = async (req, res) => {
 
     const artworks = await Artwork.findAll({
       where: { user_id: userId },
-      include: [{ model: User, as: 'author', attributes: ['full_name', 'email'] }],
+      include: [{ model: User, as: 'author', attributes: ['name', 'email'] }],
       order: [['created_at', 'DESC']]
     });
 
     for (const artwork of artworks) {
       const comments = await Comment.findAll({
         where: { artwork_id: artwork.id },
-        include: [{ model: User, as: 'author', attributes: ['full_name'] }],
+        include: [{ model: User, as: 'author', attributes: ['name'] }],
         order: [['created_at', 'ASC']]
       });
 
@@ -78,14 +79,14 @@ exports.editMyArtworksView = async (req, res) => {
 
     const artworks = await Artwork.findAll({
       where: { user_id: userId },
-      include: [{ model: User, as: 'author', attributes: ['full_name', 'email'] }],
+      include: [{ model: User, as: 'author', attributes: ['name', 'email'] }],
       order: [['created_at', 'DESC']]
     });
 
     for (const artwork of artworks) {
       const comments = await Comment.findAll({
         where: { artwork_id: artwork.id },
-        include: [{ model: User, as: 'author', attributes: ['full_name'] }],
+        include: [{ model: User, as: 'author', attributes: ['name'] }],
         order: [['created_at', 'ASC']]
       });
 
@@ -155,14 +156,14 @@ exports.viewArtwork = async (req, res) => {
     const artworkId = req.params.id;
 
     const artwork = await Artwork.findByPk(artworkId, {
-      include: [{ model: User, as: 'author', attributes: ['full_name'] }]
+      include: [{ model: User, as: 'author', attributes: ['name'] }]
     });
 
     if (!artwork) return res.status(404).send('Artwork not found');
 
     const comments = await Comment.findAll({
       where: { artwork_id: artworkId },
-      include: [{ model: User, as: 'author', attributes: ['full_name'] }],
+      include: [{ model: User, as: 'author', attributes: ['name'] }],
       order: [['created_at', 'ASC']]
     });
 
