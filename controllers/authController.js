@@ -54,7 +54,7 @@ exports.getSignup = (req, res) => {
 
 // POST /signup
 exports.postSignup = async (req, res) => {
-  const { full_name, email, password } = req.body;
+  const { name, email, password } = req.body;
 
   try {
     const existingUser = await User.findOne({ where: { email } });
@@ -64,7 +64,7 @@ exports.postSignup = async (req, res) => {
     const token = require('crypto').randomBytes(32).toString('hex');
 
     await User.create({
-      full_name,
+      name,
       email,
       password: hashedPassword,
       verification_token: token,
